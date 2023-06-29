@@ -97,20 +97,32 @@ public static function ActualizarMateriasCursadasM($tablaBD, $datosC) {
     return $stmt->execute();
 }
     
-public static function InsertarMateriasCursadasM($tablaBD, $datosC){
-        $id_materia = $datosC["id_materia"];
+public static function InsertarMateriasCursadasM($tablaBD, $datosC) {
+    $id_materia = $datosC["id_materia"];
+    $libreta = $datosC["libreta"];
+
+    // Verificar si el registro ya existe
+    $pdo = ConexionBD::cBD()->prepare("SELECT COUNT(*) as count FROM $tablaBD WHERE id_materia = :id_materia AND libreta = :libreta");
+    $pdo->bindParam(":id_materia", $id_materia, PDO::PARAM_INT);
+    $pdo->bindParam(":libreta", $libreta, PDO::PARAM_STR);
+    $pdo->execute();
+    $rowCount = $pdo->fetch(PDO::FETCH_ASSOC)['count'];
+    
+    if ($rowCount > 0) {
+        // El registro ya existe, realizar la actualización
+        $stmt = ConexionBD::cBD()->prepare("UPDATE $tablaBD SET estado = :estado, parcial_1 = :parcial_1, parcial_2 = :parcial_2, parcial_3 = :parcial_3, parcial_4 = :parcial_4, nota_final = :nota_final WHERE id_materia = :id_materia AND libreta = :libreta");
+        $stmt->bindParam(":estado", $datosC["estado"], PDO::PARAM_STR);
+        $stmt->bindParam(":parcial_1", $datosC["parcial_1"], PDO::PARAM_STR);
+        $stmt->bindParam(":parcial_2", $datosC["parcial_2"], PDO::PARAM_STR);
+        $stmt->bindParam(":parcial_3", $datosC["parcial_3"], PDO::PARAM_STR);
+        $stmt->bindParam(":parcial_4", $datosC["parcial_4"], PDO::PARAM_STR);
+        $stmt->bindParam(":nota_final", $datosC["nota_final"], PDO::PARAM_STR);
+        $stmt->bindParam(":id_materia", $id_materia, PDO::PARAM_INT);
+        $stmt->bindParam(":libreta", $libreta, PDO::PARAM_STR);
         
-        // Verificar si el registro ya existe
-        $pdo = ConexionBD::cBD()->prepare("SELECT COUNT(*) as count FROM $tablaBD WHERE id_materia = :id_materia");
-        $pdo->bindParam(":id_materia", $id_materia, PDO::PARAM_INT);
-        $pdo->execute();
-        
-        $rowCount = $pdo->fetch(PDO::FETCH_ASSOC)['count'];
-        
-        if ($rowCount > 0) {
-            return false;
-        }
-                // El registro no existe, realizar la inserción
+        return $stmt->execute();
+    } else {
+        // El registro no existe, realizar la inserción
         $stmt = ConexionBD::cBD()->prepare("INSERT INTO $tablaBD (libreta, id_materia, estado, parcial_1, parcial_2, parcial_3, parcial_4, nota_final) VALUES (:libreta, :id_materia, :estado, :parcial_1, :parcial_2, :parcial_3, :parcial_4, :nota_final)");
         $stmt->bindParam(":libreta", $datosC["libreta"], PDO::PARAM_STR);
         $stmt->bindParam(":id_materia", $id_materia, PDO::PARAM_INT);
@@ -120,9 +132,10 @@ public static function InsertarMateriasCursadasM($tablaBD, $datosC){
         $stmt->bindParam(":parcial_3", $datosC["parcial_3"], PDO::PARAM_STR);
         $stmt->bindParam(":parcial_4", $datosC["parcial_4"], PDO::PARAM_STR);
         $stmt->bindParam(":nota_final", $datosC["nota_final"], PDO::PARAM_STR);
-        
         return $stmt->execute();
     }
+}
+
     public static function ObtenerDatosNotaFinalM($libreta, $idMateria) {
         $pdo = ConexionBD::cBD()->prepare("SELECT estado, nota_final FROM materias_cursadas WHERE libreta = :libreta AND id_materia = :idMateria");
         $pdo->bindParam(":libreta", $libreta, PDO::PARAM_STR);

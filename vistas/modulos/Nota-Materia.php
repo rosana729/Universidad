@@ -22,8 +22,6 @@
                             <?php
                             $libreta = $estudiante["libreta"];
                             $idMateria = $valor;
-                            $notaFinal = "";
-                            $formaAprobacion = "";
 
                             // Obtener las notas si están disponibles
                             $notas = MateriasCursadasC::VerMateriasCursadasC($libreta, $idMateria);
@@ -33,13 +31,14 @@
                             if (!$notasDisponibles) {
                                 echo 'No se encontraron notas. Agrega las notas:';
                             }
+
                             // Inicializar las variables
                             $parcial1 = "";
                             $parcial2 = "";
                             $parcial3 = "";
                             $parcial4 = "";
                             $estado = "";
-
+                            $notaFinal = 0;
                             // Procesar el formulario de notas si se ha enviado
                             if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 $parcial1 = $_POST["parcial_1"];
@@ -50,12 +49,21 @@
                                 // Calcular la nota final como promedio de las notas parciales
                                 $notaFinal = ($parcial1 + $parcial2 + $parcial3 + $parcial4) / 4;
 
-                                // Calcular la forma de aprobación según la nota final y la forma de aprobación de la materia
-                                if ($notaFinal >= 7 && is_array($materia) && $materia["forma_aprobacion"] == "promocion") {
-                                    $formaAprobacion = "Promoción";
+                                // Calcular la forma de aprobación según las notas parciales y la forma de aprobación de la materia
+                                if ($parcial1 >= 4 && $parcial2 >= 4 && $parcial3 >= 4 && $parcial4 >= 4) {
+                                    if ($notaFinal >= 7 && $materia["forma_aprobacion"] == "promocion") {
+                                        $formaAprobacion = "Promoción";
+                                    } else {
+                                        $formaAprobacion = "Con examen final";
+                                    }
+                                } elseif ($parcial1 < 4 && $parcial2 < 4 && $parcial3 < 4 && $parcial4 < 4) {
+                                    $formaAprobacion = "Desaprobada";
+                                    $notaFinal = 2;
                                 } else {
                                     $formaAprobacion = "Con examen final";
+                                    $notaFinal = ($parcial1 + $parcial2 + $parcial3 + $parcial4) / 3;
                                 }
+
                                 $estado = $_POST["estado"];
 
                                 // Guardar los datos en la base de datos
@@ -95,11 +103,17 @@
                                 $parcial4 = $notas['parcial_4'];
 
                                 // Calcular la nota final si se encontraron las notas
-                                $notaFinal = ($parcial1 + $parcial2 + $parcial3 + $parcial4) / 4;
+                                $notaFinal = $notas['nota_final'];
 
                                 // Calcular la forma de aprobación según la nota final y la forma de aprobación de la materia
-                                if ($notaFinal >= 7 && $materia["forma_aprobacion"] == "promocion") {
-                                    $formaAprobacion = "Promoción";
+                                if ($parcial1 >= 4 && $parcial2 >= 4 && $parcial3 >= 4 && $parcial4 >= 4) {
+                                    if ($notaFinal >= 7 && $materia["forma_aprobacion"] == "promocion") {
+                                        $formaAprobacion = "Promoción";
+                                    } else {
+                                        $formaAprobacion = "Con examen final";
+                                    }
+                                } elseif ($notaFinal == 2) {
+                                    $formaAprobacion = "Desaprobada";
                                 } else {
                                     $formaAprobacion = "Con examen final";
                                 }
@@ -137,9 +151,7 @@
                                 <option value="Regular" <?php echo ($estado == "Regular" ? "selected" : ""); ?>>Regular</option>
                             </select>
                             <?php if ($notasDisponibles) {
-                             echo '<input type="hidden" name="forma_aprobacion"><h2>Forma de Aprobación:'.$formaAprobacion.'</h2>';
-                             } else{
-                                '<input type="hidden" name="forma_aprobacion" value="<?php echo $formaAprobacion; ?>';
+                                echo '<input type="hidden" name="forma_aprobacion" value="' . $formaAprobacion . '">';
                             } ?>
 
                             <h2>Nota Final:</h2>
@@ -148,7 +160,7 @@
                             <input type="hidden" name="id_materia" value="<?php echo $valor; ?>">
                             <br><br>
                             <?php if ($notasDisponibles) {
-                             echo '<button class="btn btn-success btn-lg" type="submit" name="volver">Actualizar</button>
+                                echo '<button class="btn btn-success btn-lg" type="submit" name="volver">Actualizar</button>
                              <button class="btn btn-primary btn-lg" type="button" onclick="goBack()">Volver</button>
                             <script>
                                 function goBack() {
