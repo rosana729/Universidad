@@ -46,7 +46,7 @@ if (isset($_SESSION["Ingresar"]) && $_SESSION["Ingresar"] == true) {
     
     if (isset($_GET["url"])) {
       $url = explode("/", $_GET["url"]);
-      if ($url[0] == "inicio" || $url[0] == "salir" || $url[0] == "carreras"|| $url[0] == "Editar-Carreras"|| $url[0] == "usuarios"|| $url[0] == "Estudiantes" || $url[0] == "CrearMaterias"|| $url[0] == "Ver-Plan"|| $url[0] == "Nota-Materia"){
+      if ($url[0] == "inicio" || $url[0] == "salir" || $url[0] == "mis-datos" || $url[0] == "carreras"|| $url[0] == "Editar-Carreras"|| $url[0] == "usuarios"|| $url[0] == "Estudiantes" || $url[0] == "CrearMaterias"|| $url[0] == "Ver-Plan"|| $url[0] == "Nota-Materia"){
           include "modulos/" . $url[0] . ".php";
       }
   }
