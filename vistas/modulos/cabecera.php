@@ -27,13 +27,14 @@
             </a>
             <ul class="dropdown-menu" style="border: 1px solid black">
               <!-- User image -->
-              <li class="user-header style=heigh: 100px">
-                <?php
-                if($_SESSION["rol"]=="Administrador"){
-                echo '<p>'.$_SESSION["apellido"]." ".$_SESSION["nombre"].':'." ".'Administrador</p>';
-              }
-                ?>
-              </li>
+              <li class="user-header" style="height: 100px">
+    <?php
+    if ($_SESSION["rol"] == "Administrador") {
+        echo '<p>' . $_SESSION["apellido"] . " " . $_SESSION["nombre"] . ':' . " " . 'Administrador</p>';
+    }
+    ?>
+</li>
+
               <li class="user-footer">
                 <div class="pull-left">
                   <a href="http://localhost/universidad/mis-datos" class="btn btn-primary  btn-flat">Mi Datos</a>
