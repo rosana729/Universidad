@@ -1,21 +1,30 @@
 <?php
 class UsuariosC {
     public function IniciarSesionC() {
-        if (isset($_POST["libreta"]) && preg_match('/^[a-zA-Z0-9\/]+$/', $_POST["libreta"]) && preg_match('/^[a-zA-Z0-9\/]+$/', $_POST["clave"])) {
-            $tablaBD = "usuarios";
-            $datosC = array("libreta" => $_POST["libreta"], "clave" => $_POST["clave"]);
-            $resultado = UsuariosM::IniciarSesionM($tablaBD, $datosC);
-            if ($resultado["libreta"] == $_POST["libreta"] && $resultado["clave"] == $_POST["clave"]) {
-                $_SESSION["Ingresar"] = true;
-                $_SESSION["rol"] = $resultado["rol"];
-                $_SESSION["libreta"] = $resultado["libreta"];
-                $_SESSION["nombre"] = $resultado["nombre"];
-                $_SESSION["apellido"] = $resultado["apellido"];
-                $_SESSION["id_carrera"] = $resultado["id_carrera"];
-                $_SESSION["id"] = $resultado["id"];
-                echo '<script>window.location = "inicio";</script>';
-            }else
-            echo '<br> <div class="alert-danger>Error al ingresar</div>';
+        if (isset($_POST["libreta"])) {
+            if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["libreta"]) && preg_match('/^[a-zA-Z0-9.]+$/', $_POST["clave"])) {
+                $tablaBD = "usuarios";
+                $datosC = array("libreta" => $_POST["libreta"], "clave" => $_POST["clave"]);
+                $resultado = UsuariosM::IniciarSesionM($tablaBD, $datosC);
+    
+                if (is_array($resultado) && isset($resultado["libreta"]) && isset($resultado["clave"])) {
+                    if ($resultado["libreta"] == $_POST["libreta"] && $resultado["clave"] == $_POST["clave"]) {
+                        $_SESSION["Ingresar"] = true;
+                        $_SESSION["rol"] = $resultado["rol"];
+                        $_SESSION["libreta"] = $resultado["libreta"];
+                        $_SESSION["nombre"] = $resultado["nombre"];
+                        $_SESSION["apellido"] = $resultado["apellido"];
+                        $_SESSION["id_carrera"] = $resultado["id_carrera"];
+                        $_SESSION["id"] = $resultado["id"];
+    
+                        echo '<script>window.location = "inicio";</script>';
+                    } else {
+                        echo '<br> <div class="alert alert-danger">Error al Ingresar</div>';
+                    }
+                } else {
+                    echo '<br> <div class="alert alert-danger">Error en los datos obtenidos</div>';
+                }
+            }
         }
     }
     public function verMisDatos() {
